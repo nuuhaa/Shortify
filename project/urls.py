@@ -3,5 +3,5 @@ from django.urls import include, path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('Shortify.urls')),  # Replace 'yourapp' with your actual app name
+    path('', include('Shortify.urls')),
 ]

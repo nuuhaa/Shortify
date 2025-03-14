@@ -1,38 +1,41 @@
 from django.http import HttpResponse
 from django.urls import reverse_lazy
 import pyshorteners
-from Shortify.forms import UrlForm
-from .models import URLShortener
-from django.views.generic import FormView
+from Shortify.forms import LinkForm
+from .models import URLMapping
+from django.views.generic import FormView, ListView
 from django.shortcuts import render
 
-class Urlgenerate(FormView):
+class LinkGenerator(FormView):
     template_name = 'home.html'
-    form_class = UrlForm
+    form_class = LinkForm
     success_url = reverse_lazy('home')
 
     def get(self, request, *args, **kwargs):
-        return super().get(request, *args, **kwargs)  # Call the parent method to render the form
+        return super().get(request, *args, **kwargs)
 
     def form_valid(self, form):
-        link = form.cleaned_data['link']
+        url_input = form.cleaned_data['url']
         try:
-            s = pyshorteners.Shortener()
-            short_url = s.tinyurl.short(link)
+            shortener = pyshorteners.Shortener()
+            shortened_url = shortener.tinyurl.short(url_input)
 
-            # Save to the model
-            URLShortener.objects.create(original_url=link, short_url=short_url)
+            URLMapping.objects.create(original_url=url_input, short_url=shortened_url)
 
-            # Prepare context to render
             context = {
-                'short_url': short_url,
-                'original_url': link,
-                'form': form,  # Include the form to re-render it
+                'shortened_url': shortened_url,
+                'original_url': url_input,
+                'form': form,
             }
             return render(self.request, self.template_name, context)
         except Exception as e:
             context = {
-                'error': 'Give Valid Url',
-                'form': form,  # Include the form to re-render it
+                'error_message': 'Please provide a valid URL',
+                'form': form,
             }
             return render(self.request, self.template_name, context)
+
+class URLListView(ListView):
+    model = URLMapping
+    template_name = 'url_list.html' 
+    context_object_name = 'url_list' 

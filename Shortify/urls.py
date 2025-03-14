@@ -1,6 +1,6 @@
 from django.urls import path
-from .views import Urlgenerate  # Ensure this matches your view
+from .views import LinkGenerator, URLListView  
 
 urlpatterns = [
-    path('', Urlgenerate.as_view(), name='home'),  # Root URL
-]
+    path('', LinkGenerator.as_view(), name='home'),
+    path('urls/', URLListView.as_view(), name='url_list'),  ]
