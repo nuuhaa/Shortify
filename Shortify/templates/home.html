@@ -30,7 +30,7 @@
                                 {% for field in form.visible_fields %}
                                     <div class="form-outline mb-4">
                                         <input
-                                            placeholder="Enter the url here"
+                                            placeholder="Enter the URL here"
                                             name="{{ field.name }}"
                                             id="{{ field.id_for_label }}"
                                             type="{{ field.widget_type }}"
@@ -86,45 +86,51 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.8/clipboard.min.js"></script>
 
 <script>
-    const linkFromBackend = "{{ short_url }}";  // Adjusted variable
-    if (linkFromBackend && linkFromBackend !== "Give Valid Url") {
-        Swal.fire({
-            icon: "success",
-            title: "Shortened URL:",
-            html: `
-                <a href='${linkFromBackend}' target='_blank'>${linkFromBackend}</a>
-                <button id="copyButton" class="btn btn-primary">Copy</button>
-            `,
-            confirmButtonText: "Cancel",
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "/";
-            }
-        });
+    const linkFromBackend = "{{ short_url }}";
+    if (linkFromBackend) {
+        if (linkFromBackend === "Give Valid Url") {
+            Swal.fire({
+                icon: "warning",
+                title: linkFromBackend,
+                confirmButtonText: "Cancel",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/";
+                }
+            });
+        } else {
+            Swal.fire({
+                icon: "success",
+                title: "Shortened URL:",
+                html: `
+                    <a href='${linkFromBackend}' target='_blank'>${linkFromBackend}</a>
+                    <button id="copyButton" class="btn btn-primary">Copy</button>
+                `,
+                confirmButtonText: "Cancel",
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = "/";
+                }
+            });
 
-        // Set up clipboard functionality
-        const copyButton = document.getElementById("copyButton");
-        const clipboard = new ClipboardJS(copyButton, {
-            text: function () {
-                return linkFromBackend;
-            },
-        });
-    } else if (linkFromBackend && linkFromBackend === "Give Valid Url") {
-        Swal.fire({
-            icon: "warning",
-            title: `
-                <p>${linkFromBackend}</p>
-            `,
-            confirmButtonText: "Cancel",
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                window.location.href = "/";
+            // Set up clipboard functionality
+            const copyButton = document.getElementById("copyButton");
+            if (copyButton) {
+                const clipboard = new ClipboardJS(copyButton, {
+                    text: function () {
+                        return linkFromBackend;
+                    },
+                });
+
+                clipboard.on('success', function() {
+                    Swal.fire('Copied!', '', 'success');
+                });
             }
-        });
+        }
     }
 </script>
 </body>
